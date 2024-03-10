@@ -1,4 +1,4 @@
-import { chartsConfig } from "@/configs";
+import { chartsConfig } from "../configs"
 
 const websiteViewsChart = {
   type: "bar",
@@ -105,26 +105,13 @@ const completedTasksChart = {
 };
 
 export const statisticsChartsData = [
-  {
-    color: "white",
-    title: "Website View",
-    description: "Last Campaign Performance",
-    footer: "campaign sent 2 days ago",
-    chart: websiteViewsChart,
-  },
+
   {
     color: "white",
     title: "Daily Sales",
     description: "15% increase in today sales",
     footer: "updated 4 min ago",
     chart: dailySalesChart,
-  },
-  {
-    color: "white",
-    title: "Completed Tasks",
-    description: "Last Campaign Performance",
-    footer: "just updated",
-    chart: completedTasksChart,
   },
 ];
 

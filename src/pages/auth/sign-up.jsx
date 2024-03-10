@@ -1,4 +1,4 @@
-import {
+/*import {
   Card,
   Input,
   Checkbox,
@@ -92,3 +92,4 @@ export function SignUp() {
 }
 
 export default SignUp;
+*/
