@@ -6,9 +6,39 @@ import {
     Typography,
   } from "@material-tailwind/react";
   import { Link } from "react-router-dom";
-  
-  
+  import axios from "axios";
   export function AdmminLogin() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+  
+    const handleLogin = () => {
+      if (!validateEmail(email) || password.length < MIN_PASSWORD_LENGTH) {
+        setErrorMessage(
+          "Please enter a valid email and ensure the password is at least 8 characters long"
+        );
+        return;
+      }
+    
+      axios
+        .post("http://localhost:3000/login", { email, password })
+        .then((response) => {
+          const user = response.data.user;
+          // Assuming your API returns a token upon successful login
+          const token = response.data.token;
+          // Store the token in local storage or cookies for future authenticated requests
+          localStorage.setItem("token", token);
+          console.log("User logged in:", user);
+          setUser(user);
+          navigate("/");
+        })
+        .catch((error) => {
+          console.log("Login error:", error.message);
+          setErrorMessage("Login failed: invalid credentials ");
+        });
+    };
+    
+    
+    
     return (
       <section className="m-8 flex gap-4">
         <div className="w-full lg:w-3/5 mt-24">

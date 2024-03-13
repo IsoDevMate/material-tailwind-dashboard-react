@@ -13,6 +13,8 @@ import {
   Tooltip,
   Progress,
 } from "@material-tailwind/react";
+//import { DownloadIcon } from "@heroicons/react/24/solid";
+import { DownloadOrdersReport } from "../../layouts/Downloadbtn";
 import {
   EllipsisVerticalIcon,
   ArrowUpIcon,
@@ -151,7 +153,7 @@ export function Home() {
           />
         ))}
       </div>
-      {/* Rest of the component */}
+     < DownloadOrdersReport />
     </div>
   );
 }
