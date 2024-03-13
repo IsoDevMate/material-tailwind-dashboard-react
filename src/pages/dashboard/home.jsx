@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Card,
@@ -19,19 +19,122 @@ import {
 } from "@heroicons/react/24/outline";
 import { StatisticsCard } from "../../widgets/cards";
 import { StatisticsChart } from "../../widgets/charts";
-import {
-  statisticsCardsData,
-  statisticsChartsData,
-  projectsTableData,
-  ordersOverviewData,
-} from "../../data";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
+import { collection, getDocs, query, where} from "firebase/firestore";
+import { db } from "../../firebase";  
+import { BanknotesIcon, UserPlusIcon, UsersIcon, ChartBarIcon } from "@heroicons/react/24/solid";
 
 export function Home() {
+  const [statisticsCards, setStatisticsCards] = useState([]);
+
+  /*
+  const rules = {
+    rules: {
+      "users": {
+        ".read": "true", // Allow read access to the "users" collection
+        ".write": "false"  // Disallow write access to the "users" collection
+      },
+      "orders": {
+        ".read": "true", // Allow read access to the "orders" collection
+        ".write": "false"  // Disallow write access to the "orders" collection
+      }
+      // Add rules for other collections as needed
+    }
+  };
+  */
+  /*
+  db.app.firestore().setRules(JSON.stringify(rules))
+    .then(() => {
+      console.log('Firestore security rules have been set successfully');
+    })
+    .catch((error) => {
+      console.error('Error setting Firestore security rules:', error);
+    });
+    */
+
+  useEffect(() => {
+    const fetchStatisticsCards = async () => {
+      try {
+        const usersSnapshot = await getDocs(collection(db, "users"));
+        const totalUsers = usersSnapshot.size;
+        console.log(totalUsers);
+  
+        const ordersSnapshot = await getDocs(collection(db, "orders"));
+        const totalOrders = ordersSnapshot.size;
+        console.log(totalOrders)
+  
+        const completedOrdersQuery = query(
+          collection(db, "orders"),
+          where("status", "==", "completed")
+        );
+        const completedOrdersSnapshot = await getDocs(completedOrdersQuery);
+        const totalCompletedOrders = completedOrdersSnapshot.size;
+  
+        let totalIncome = 0;
+        completedOrdersSnapshot.forEach((doc) => {
+          totalIncome += doc.data().amount;
+        });
+
+        const statisticsCardsData = [
+          {
+            color: "gray",
+            icon: BanknotesIcon,
+            title: "Total Income",
+            value: `$${totalIncome}`,
+            footer: {
+              color: "text-green-500",
+              value: "+55%",
+              label: "than last week",
+            },
+          },
+          {
+            color: "gray",
+            icon: UsersIcon,
+            title: "Total Users",
+            value: totalUsers.toString(),
+            footer: {
+              color: "text-green-500",
+              value: "+3%",
+              label: "than last month",
+            },
+          },
+          {
+            color: "gray",
+            icon: UserPlusIcon,
+            title: "Total Orders",
+            value: totalOrders.toString(),
+            footer: {
+              color: "text-red-500",
+              value: "-2%",
+              label: "than yesterday",
+            },
+          },
+          {
+            color: "gray",
+            icon: ChartBarIcon,
+            title: "Completed Orders",
+            value: totalCompletedOrders.toString(),
+            footer: {
+              color: "text-green-500",
+              value: "+5%",
+              label: "than yesterday",
+            },
+          },
+        ];
+
+        setStatisticsCards(statisticsCardsData);
+      } catch (error) {
+        console.error("Error fetching statistics cards data:", error);
+      }
+    };
+
+    fetchStatisticsCards();
+  }, []);
+
   return (
     <div className="mt-12">
       <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
-        {statisticsCardsData.map(({ icon, title, footer, ...rest }) => (
+        {statisticsCards.map(({ icon, title, footer, ...rest }) => (
           <StatisticsCard
             key={title}
             {...rest}
@@ -48,85 +151,7 @@ export function Home() {
           />
         ))}
       </div>
-      <div className="mb-6 grid grid-cols-1 gap-y-12 gap-x-6 md:grid-cols-2 xl:grid-cols-3">
-      <Card className="border border-blue-gray-100 shadow-sm">
-          <CardHeader
-            floated={false}
-            shadow={false}
-            color="transparent"
-            className="m-0 p-6"
-          >
-            <Typography variant="h6" color="blue-gray" className="mb-2">
-              Orders Overview
-            </Typography>
-            <Typography
-              variant="small"
-              className="flex items-center gap-1 font-normal text-blue-gray-600"
-            >
-              <ArrowUpIcon
-                strokeWidth={3}
-                className="h-3.5 w-3.5 text-green-500"
-              />
-              <strong>24%</strong> this month
-            </Typography>
-          </CardHeader>
-          <CardBody className="pt-0">
-            {ordersOverviewData.map(
-              ({ icon, color, title, description }, key) => (
-                <div key={title} className="flex items-start gap-4 py-3">
-                  <div
-                    className={`relative p-1 after:absolute after:-bottom-6 after:left-2/4 after:w-0.5 after:-translate-x-2/4 after:bg-blue-gray-50 after:content-[''] ${
-                      key === ordersOverviewData.length - 1
-                        ? "after:h-0"
-                        : "after:h-4/6"
-                    }`}
-                  >
-                    {React.createElement(icon, {
-                      className: `!w-5 !h-5 ${color}`,
-                    })}
-                  </div>
-                  <div>
-                    <Typography
-                      variant="small"
-                      color="blue-gray"
-                      className="block font-medium"
-                    >
-                      {title}
-                    </Typography>
-                    <Typography
-                      as="span"
-                      variant="small"
-                      className="text-xs font-medium text-blue-gray-500"
-                    >
-                      {description}
-                    </Typography>
-                  </div>
-                </div>
-              )
-            )}
-          </CardBody>
-        </Card>
-        {statisticsChartsData.map((props) => (
-          <StatisticsChart
-            key={props.title}
-            {...props}
-            footer={
-              <Typography
-                variant="small"
-                className="flex items-center font-normal text-blue-gray-600"
-              >
-                <ClockIcon strokeWidth={2} className="h-4 w-4 text-blue-gray-400" />
-                &nbsp;{props.footer}
-              </Typography>
-            }
-            
-          />
-        ))}
-      </div>
-      <div className="mb-4 grid grid-cols-1 gap-6 xl:grid-cols-3">
- 
-
-      </div>
+      {/* Rest of the component */}
     </div>
   );
 }
