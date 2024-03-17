@@ -24,6 +24,7 @@ import {
           element: <Home />,
         },
         
+        
         {
           icon: <InformationCircleIcon {...icon} />,
           name: "notifications",

@@ -7,10 +7,42 @@ import {
   } from "@material-tailwind/react";
   import { Link } from "react-router-dom";
   import axios from "axios";
+  import FaEye  from "react-icons/fa";
+  import FaEyeSlash from "react-icons/fa";
   export function AdmminLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+
+    const validateEmail = (email) => {
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return regex.test(email);
+    };
   
+    const togglePasswordVisibility = () => {
+      setShowPassword(!showPassword);
+    };
+    
+    const handlePasswordChange = (e) => {
+      const value = e.target.value.trim();
+      setPassword(value);
+      setPasswordError(
+        value.length >= MIN_PASSWORD_LENGTH
+          ? ""
+          : `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`
+      );
+    };
+
+    const handleEmailChange = (e) => {
+      const value = e.target.value;
+      setEmail(value);
+      setEmailError(validateEmail(value) ? "" : "Invalid email format");
+    };
+    
     const handleLogin = () => {
       if (!validateEmail(email) || password.length < MIN_PASSWORD_LENGTH) {
         setErrorMessage(
@@ -18,27 +50,27 @@ import {
         );
         return;
       }
-    
+      
+      setIsLoading(true);
       axios
         .post("http://localhost:3000/login", { email, password })
         .then((response) => {
-          const user = response.data.user;
-          // Assuming your API returns a token upon successful login
-          const token = response.data.token;
-          // Store the token in local storage or cookies for future authenticated requests
-          localStorage.setItem("token", token);
+          const user = response.data.user;  
           console.log("User logged in:", user);
+          alert("User logged in:", user);
           setUser(user);
           navigate("/");
         })
         .catch((error) => {
           console.log("Login error:", error.message);
           setErrorMessage("Login failed: invalid credentials ");
-        });
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });	
     };
     
-    
-    
+
     return (
       <section className="m-8 flex gap-4">
         <div className="w-full lg:w-3/5 mt-24">
@@ -48,7 +80,15 @@ import {
           </div>
           <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2">
             <div className="mb-1 flex flex-col gap-6">
-              <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
+              <Typography 
+               variant="small"
+                color="blue-gray" 
+                className="-mb-3 font-medium" 
+                type="email"
+                value={email}
+                onChange={handleEmailChange}
+                error={emailError}
+                >
                 Your email
               </Typography>
               <Input
@@ -58,6 +98,17 @@ import {
                 labelProps={{
                   className: "before:content-none after:content-none",
                 }}
+                type={showPassword ? "text" : "password"}
+                value={password}
+                error={passwordError}w jana 
+                onChange={handlePasswordChange}
+                icon={
+                  showPassword ? (
+                    <FaEyeSlash onClick={togglePasswordVisibility} />
+                  ) : (
+                    <FaEye onClick={togglePasswordVisibility} />
+                  )
+                }
               />
               <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
                 Password
@@ -90,10 +141,9 @@ import {
               }
               containerProps={{ className: "-ml-2.5" }}
             />
-            <Button className="mt-6" fullWidth>
+            <Button className="mt-6" fullWidth onClick={handleLogin}>
               Sign In
             </Button>
-  
             <div className="flex items-center justify-between gap-2 mt-6">
               <Checkbox
                 label={
@@ -147,6 +197,6 @@ import {
       </section>
     );
   }
-  
-  export default AdmminLogin;
+
+export default AdmminLogin;
   
