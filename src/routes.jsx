@@ -6,8 +6,8 @@ import {
     ServerStackIcon,
     RectangleStackIcon,
   } from "@heroicons/react/24/solid";
-  import { Home, Notifications } from "../src/pages/dashboard";
-  import { SignIn } from "../src/pages/auth";
+  import { Home } from "../src/pages/dashboard";
+  import { AdminLogin } from "../src/pages/auth";
   
   const icon = {
     className: "w-5 h-5 text-inherit",
@@ -24,13 +24,7 @@ import {
           element: <Home />,
         },
         
-        
-        {
-          icon: <InformationCircleIcon {...icon} />,
-          name: "notifications",
-          path: "/notifications",
-          element: <Notifications />,
-        },
+ 
       ],
     },
     {
@@ -39,9 +33,9 @@ import {
       pages: [
         {
           icon: <ServerStackIcon {...icon} />,
-          name: "sign in",
-          path: "/sign-in", 
-          element: <SignIn />,
+          name: "adminlogin",
+          path: "/adminlogin", 
+          element: <AdminLogin />,
         },
       ],
     },

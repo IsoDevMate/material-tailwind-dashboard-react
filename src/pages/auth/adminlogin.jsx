@@ -7,9 +7,9 @@ import {
   } from "@material-tailwind/react";
   import { Link } from "react-router-dom";
   import axios from "axios";
-  import FaEye  from "react-icons/fa";
-  import FaEyeSlash from "react-icons/fa";
-  export function AdmminLogin() {
+  import { FaEye } from "react-icons/fa";
+  import { FaEyeSlash} from "react-icons/fa";
+  export const AdminLogin=()=> {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [emailError, setEmailError] = useState("");
@@ -198,5 +198,5 @@ import {
     );
   }
 
-export default AdmminLogin;
+
   

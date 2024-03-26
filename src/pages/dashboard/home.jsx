@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { orderBy, limit } from "firebase/firestore";
+import { db } from "../../firebase";
+
 import {
   Typography,
   Card,
@@ -13,7 +16,7 @@ import {
   Tooltip,
   Progress,
 } from "@material-tailwind/react";
-//import { DownloadIcon } from "@heroicons/react/24/solid";
+
 import { DownloadOrdersReport } from "../../layouts/Downloadbtn";
 import {
   EllipsisVerticalIcon,
@@ -22,13 +25,12 @@ import {
 import { StatisticsCard } from "../../widgets/cards";
 import { StatisticsChart } from "../../widgets/charts";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
-import { collection, getDocs, query, where} from "firebase/firestore";
-import { db } from "../../firebase";  
+import { collection, getDocs, query, where} from "firebase/firestore";  
 import { BanknotesIcon, UserPlusIcon, UsersIcon, ChartBarIcon } from "@heroicons/react/24/solid";
 
 export function Home() {
   const [statisticsCards, setStatisticsCards] = useState([]);
-
+  const [ordersOverviewData, setOrdersOverviewData] = useState([]);
   /*
   const rules = {
     rules: {
@@ -53,6 +55,7 @@ export function Home() {
       console.error('Error setting Firestore security rules:', error);
     });
     */
+
 
   useEffect(() => {
     const fetchStatisticsCards = async () => {
@@ -125,6 +128,7 @@ export function Home() {
         ];
 
         setStatisticsCards(statisticsCardsData);
+        await fetchOrdersOverviewData();
       } catch (error) {
         console.error("Error fetching statistics cards data:", error);
       }
@@ -132,6 +136,22 @@ export function Home() {
 
     fetchStatisticsCards();
   }, []);
+
+  const fetchOrdersOverviewData = async () => {
+    try {
+      const ordersQuery = query(collection(db, "orders"), orderBy("paymentTime", "desc"), limit(5));
+      const ordersSnapshot = await getDocs(ordersQuery);
+      const ordersData = ordersSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        status: doc.data().status,
+        paymentTime: doc.data().paymentTime.toDate(),
+        amount: doc.data().amount,
+      }));
+      setOrdersOverviewData(ordersData);
+    } catch (error) {
+      console.error("Error fetching orders overview data:", error);
+    }
+  };
 
   return (
     <div className="mt-12">
@@ -153,6 +173,59 @@ export function Home() {
           />
         ))}
       </div>
+
+     <div>
+     <Card className="border border-blue-gray-100 shadow-sm w-110">
+          <CardHeader
+            floated={false}
+            shadow={false}
+            color="transparent"
+            className="m-0 p-6"
+          >
+            <Typography variant="h6" color="blue-gray" className="mb-2">
+              Orders Overview
+            </Typography>
+            <Typography
+              variant="small"
+              className="flex items-center gap-1 font-normal text-blue-gray-600"
+            >
+              <ArrowUpIcon
+                strokeWidth={3}
+                className="h-3.5 w-3.5 text-green-500"
+              />
+              <strong>24%</strong> this month
+            </Typography>
+          </CardHeader>
+          <CardBody className="pt-0 w-110">
+          {ordersOverviewData.map((order, key) => (
+               <div key={order.id} className="flex items-start gap-4 py-3">
+                 <div
+                   className={`relative p-1 after:absolute after:-bottom-6 after:left-2/4 after:w-0.5 after:-translate-x-2/4 after:bg-blue-gray-50 after:content-[''] ${
+                     key === ordersOverviewData.length - 1 ? "after:h-0" : "after:h-4/6"
+                   }`}
+                 >
+                   <div className="flex items-center justify-center bg-blue-gray-50 rounded-full w-8 h-8">
+                     <Typography variant="small" color="blue-gray" className="font-medium">
+                       {order.status.charAt(0).toUpperCase()}
+                     </Typography>
+                   </div>
+                 </div>
+                 <div>
+                   <Typography variant="small" color="blue-gray" className="block font-medium">
+                     Order ID: {order.id}
+                   </Typography>
+                   <Typography as="span" variant="small" className="text-xs font-medium text-blue-gray-500">
+                     Payment Time: {order.paymentTime.toLocaleString()}
+                   </Typography>
+                   <Typography as="span" variant="small" className="text-xs font-medium text-blue-gray-500">
+                     Amount: ${order.amount}
+                   </Typography>
+                 </div>
+               </div>
+             ))}
+             </CardBody>
+           </Card>
+     </div>
      < DownloadOrdersReport />
     </div>
   );
