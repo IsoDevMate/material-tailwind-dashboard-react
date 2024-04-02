@@ -55,7 +55,7 @@ export const DownloadOrdersReport = () => {
       <Button
         onClick={handleDownload}
         disabled={isDownloading}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        className="bg-black-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
       >
         {isDownloading ? 'Downloading...' : 'Download Orders Report'}
       </Button>

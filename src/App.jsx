@@ -5,8 +5,8 @@ function App() {
   return (
     <Routes>
       <Route path="/dashboard/*" element={<Dashboard />} />
-      <Route path="/auth/*" element={<Auth />} />
-      <Route path="*" element={<Navigate to="/dashboard" />} />
+      <Route path="/admin" element={<Auth />} />
+      <Route path="*" element={<Navigate to="/dashboard/*" />} />
     </Routes>
   );
 }
